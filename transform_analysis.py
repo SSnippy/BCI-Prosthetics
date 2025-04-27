@@ -34,12 +34,12 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
             
             # Create parent folder with same name as input file (without extension)
             input_filename = os.path.splitext(os.path.basename(eeg_data_path))[0]
-            PARENT_FOLDER = os.path.join(OUTPUT_BASE_FOLDER, f"transform_{input_filename}")
+            PARENT_FOLDER = os.path.join(OUTPUT_BASE_FOLDER, input_filename)
             os.makedirs(PARENT_FOLDER, exist_ok=True)
 
             # Create plots subfolder within the parent folder
-            PLOTS_FOLDER = os.path.join(PARENT_FOLDER, "plots")
-            os.makedirs(PLOTS_FOLDER, exist_ok=True)
+            #PLOTS_FOLDER = os.path.join(PARENT_FOLDER, "plots23")
+            #os.makedirs(PLOTS_FOLDER, exist_ok=True)
 
             # Create Fourier Transform subfolder
             FT_FOLDER = os.path.join(PARENT_FOLDER, "fourier_transform")
@@ -50,7 +50,7 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
             os.makedirs(WAVELET_FOLDER, exist_ok=True)
 
             print(f"Output will be saved in: {PARENT_FOLDER}")
-            print(f"Plots will be saved in: {PLOTS_FOLDER}")
+            #print(f"Plots will be saved in: {PLOTS_FOLDER}")
             print(f"Fourier Transform results will be saved in: {FT_FOLDER}")
             print(f"Wavelet Transform results will be saved in: {WAVELET_FOLDER}")
 
@@ -95,8 +95,8 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                     print(f"Number of windows to create: {num_windows}")
                     
                     # Create electrode-specific folder
-                    electrode_folder = os.path.join(PLOTS_FOLDER, electrode_name.replace(' ', '_'))
-                    os.makedirs(electrode_folder, exist_ok=True)
+                    #electrode_folder = os.path.join(PLOTS_FOLDER, electrode_name.replace(' ', '_'))
+                    #os.makedirs(electrode_folder, exist_ok=True)
                     
                     # Process each time window
                     for window_idx in range(num_windows):
@@ -145,9 +145,9 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                         # Save the plot in electrode-specific folder
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                         plot_filename = f"window_{window_idx + 1}_{timestamp}.png"
-                        plot_filepath = os.path.join(electrode_folder, plot_filename)
-                        plt.savefig(plot_filepath, dpi=600, bbox_inches='tight')
-                        print(f"Saved plot for {electrode_name} window {window_idx + 1} to: {plot_filepath}")
+                        #plot_filepath = os.path.join(electrode_folder, plot_filename)
+                        #plt.savefig(plot_filepath, dpi=600, bbox_inches='tight')
+                        #print(f"Saved plot for {electrode_name} window {window_idx + 1} to: {plot_filepath}")
                         
                         plt.close()
                     
@@ -349,11 +349,11 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                     plt.legend()
                     
                     # Save the plot
-                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    '''timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                     plot_filename = f"wavelet_{electrode_name.replace(' ', '_')}_{band_name}_{timestamp}.png"
                     plot_filepath = os.path.join(electrode_wavelet_folder, plot_filename)
                     plt.savefig(plot_filepath, dpi=600, bbox_inches='tight')
-                    plt.close()
+                    plt.close()'''
                 
                 return time, frequencies, np.abs(coefficients)
 
@@ -496,7 +496,7 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                 print("No Wavelet Transform results to save.")
 
             # Now process time domain plots
-            print("\nProcessing time domain plots...")
+            '''print("\nProcessing time domain plots...")
             for electrode in eeg_df.columns:
                 if electrode != 'EKG-REF':  # Skip the EKG reference channel
                     print(f"Processing time domain plots for electrode: {electrode}")
@@ -507,7 +507,7 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
             print(f"Results are saved in: {PARENT_FOLDER}")
             print(f"- Time domain plots are in: {PLOTS_FOLDER}")
             print(f"- Frequency domain plots and results are in: {FT_FOLDER}")
-            print(f"- Time-frequency domain plots are in: {WAVELET_FOLDER}")
+            print(f"- Time-frequency domain plots are in: {WAVELET_FOLDER}")'''
             
         except Exception as e:
             print(f"Error in processing: {str(e)}")
