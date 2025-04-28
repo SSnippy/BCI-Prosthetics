@@ -1,4 +1,4 @@
-from review import bciform
+from WaveTransform_Comparative import bciform
 import numpy as np
 import pywt
 import matplotlib.pyplot as plt
@@ -11,7 +11,7 @@ import glob
 import keyboard
 
 base_path = 'C:/Users/pande/OneDrive/Desktop/eeg sem projet/eeg code/Datapoints'
-output_path='C:/Users/pande/OneDrive/Desktop/eeg sem projet/eeg code/output'
+output_path='C:/Users/pande/OneDrive/Desktop/eeg sem projet/eeg code/WaveTransforms-0'
 
 output = []  # List to store patient folder names
 done=[]
