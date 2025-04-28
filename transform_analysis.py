@@ -330,7 +330,7 @@ def bcitransform(MOVEMENTS_FOLDER,OUTPUT_BASE_FOLDER):
                 combined_ft_df = combined_ft_df.sort_values('Frequency (Hz)')
                 
                 # Save to Excel
-                ft_excel_path = os.path.join(FT_FOLDER, "fourier_transform_results.xlsx")
+                ft_excel_path = os.path.join(FT_FOLDER, f"fourier_transform_results_{input_filename[-9:]}.xlsx")
                 combined_ft_df.to_excel(ft_excel_path, index=False)
                 print(f"Fourier Transform results saved to: {ft_excel_path}")
             else:
@@ -394,7 +394,7 @@ def bcitransform(MOVEMENTS_FOLDER,OUTPUT_BASE_FOLDER):
                 combined_wavelet_df = combined_wavelet_df.sort_values(['Time (s)', 'Frequency (Hz)'])
                 
                 # Save to Excel
-                wavelet_excel_path = os.path.join(WAVELET_FOLDER, "wavelet_transform_results.xlsx")
+                wavelet_excel_path = os.path.join(WAVELET_FOLDER, f"wavelet_transform_results_{input_filename[-9:]}.xlsx")
                 combined_wavelet_df.to_excel(wavelet_excel_path, index=False)
                 print(f"Wavelet Transform results saved to: {wavelet_excel_path}")
             else:
