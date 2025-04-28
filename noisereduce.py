@@ -18,8 +18,8 @@ ORDER = 4
 FS = 1024          # Sampling frequency in Hz
 
 # --- File paths ---
-INPUT_BASE_FOLDER = r"C:\Users\pande\OneDrive\Desktop\eeg sem projet\eeg code\Datapoints"  # Base folder containing patient folders
-OUTPUT_BASE_FOLDER = r"C:\Users\pande\OneDrive\Desktop\eeg sem projet\eeg code\nr"  # Base output directory
+INPUT_BASE_FOLDER = r"Datapoints"  #add full path if error occurs
+OUTPUT_BASE_FOLDER = r"nr"  #add full path if error occurs
 
 print("Libraries imported successfully")
 
