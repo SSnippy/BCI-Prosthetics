@@ -10,8 +10,8 @@ from datetime import datetime
 import glob
 import keyboard
 
-base_path = 'C:/Users/pande/OneDrive/Desktop/eeg sem projet/eeg code/Datapoints'
-output_path='C:/Users/pande/OneDrive/Desktop/eeg sem projet/eeg code/WaveTransforms-0'
+base_path = 'Datapoints' #add full path if error occurs
+output_path='WaveTransforms-0' #add full path if error occurs
 
 output = []  # List to store patient folder names
 done=[]
