@@ -16,11 +16,10 @@ TIME_TICK_INTERVAL = 0.01  # Time tick interval in seconds
 
 print("Libraries imported successfully")
 
-# Define the folder containing all movement files
-MOVEMENTS_FOLDER = "C:/Users/pande/OneDrive/Desktop/eeg sem projet/eeg code/nr/002- Ayush"  
-OUTPUT_BASE_FOLDER = r"C:/Users/pande/OneDrive/Desktop/eeg sem projet/eeg code/ft_wt_transform/007"
-
-def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
+def bcitransform(MOVEMENTS_FOLDER,OUTPUT_BASE_FOLDER):
+    # Add transform_ prefix to the base folder name
+    OUTPUT_BASE_FOLDER = os.path.join(os.path.dirname(OUTPUT_BASE_FOLDER), f"t_{os.path.basename(OUTPUT_BASE_FOLDER)}")
+    
     # Get all Excel files in the movements folder
     movement_files = glob.glob(os.path.join(MOVEMENTS_FOLDER, "*.xlsx"))
     print(f"\nFound {len(movement_files)} movement files to process")
@@ -34,12 +33,8 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
             
             # Create parent folder with same name as input file (without extension)
             input_filename = os.path.splitext(os.path.basename(eeg_data_path))[0]
-            PARENT_FOLDER = os.path.join(OUTPUT_BASE_FOLDER, input_filename)
+            PARENT_FOLDER = os.path.join(OUTPUT_BASE_FOLDER, f"t_{input_filename}")
             os.makedirs(PARENT_FOLDER, exist_ok=True)
-
-            # Create plots subfolder within the parent folder
-            #PLOTS_FOLDER = os.path.join(PARENT_FOLDER, "plots23")
-            #os.makedirs(PLOTS_FOLDER, exist_ok=True)
 
             # Create Fourier Transform subfolder
             FT_FOLDER = os.path.join(PARENT_FOLDER, "fourier_transform")
@@ -50,7 +45,6 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
             os.makedirs(WAVELET_FOLDER, exist_ok=True)
 
             print(f"Output will be saved in: {PARENT_FOLDER}")
-            #print(f"Plots will be saved in: {PLOTS_FOLDER}")
             print(f"Fourier Transform results will be saved in: {FT_FOLDER}")
             print(f"Wavelet Transform results will be saved in: {WAVELET_FOLDER}")
 
@@ -79,84 +73,6 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                 window_time = np.linspace(start_time, start_time + TIME_WINDOW, len(window_signal))
                 
                 return window_signal, window_time
-
-            def process_electrode(eeg_signal, electrode_name):
-                try:
-                    # Remove NaN values
-                    eeg_signal = eeg_signal[~np.isnan(eeg_signal)]
-                    
-                    # Calculate total duration
-                    total_duration = len(eeg_signal) / SAMPLING_FREQ
-                    num_windows = int(np.ceil(total_duration / TIME_WINDOW))
-                    
-                    print(f"\nProcessing {electrode_name}:")
-                    print(f"Total duration: {total_duration:.2f} seconds")
-                    print(f"Number of samples: {len(eeg_signal)}")
-                    print(f"Number of windows to create: {num_windows}")
-                    
-                    # Create electrode-specific folder
-                    #electrode_folder = os.path.join(PLOTS_FOLDER, electrode_name.replace(' ', '_'))
-                    #os.makedirs(electrode_folder, exist_ok=True)
-                    
-                    # Process each time window
-                    for window_idx in range(num_windows):
-                        # Calculate start and end time for this window
-                        start_time = window_idx * TIME_WINDOW
-                        end_time = min(start_time + TIME_WINDOW, total_duration)
-                        
-                        print(f"Creating window {window_idx + 1}/{num_windows}: {start_time:.1f}s - {end_time:.1f}s")
-                        
-                        # Calculate start and end indices
-                        start_idx = int(start_time * SAMPLING_FREQ)
-                        end_idx = int(end_time * SAMPLING_FREQ)
-                        
-                        # Get the signal segment for this window
-                        window_signal = eeg_signal[start_idx:end_idx]
-                        
-                        # Create time array for this window
-                        window_time = np.linspace(start_time, end_time, len(window_signal))
-                        
-                        # Create plot for this window
-                        plt.figure(figsize=(8, 4))  # Slightly smaller width for 0.1s window
-                        plt.plot(window_time, window_signal, label='EEG Signal', color='purple', linewidth=1)
-                        
-                        # Create title with time duration information
-                        title = f'EEG Signal for {electrode_name}\n'
-                        title += f'Time: {start_time:.2f}s - {end_time:.2f}s (Window {window_idx + 1}/{num_windows})'
-                        plt.title(title, fontsize=12)
-                        
-                        plt.xlabel('Time (seconds)', fontsize=10)
-                        plt.ylabel('Amplitude (µV)', fontsize=10)
-                        
-                        # Set x-axis ticks every 0.01 seconds
-                        plt.xticks(np.arange(start_time, end_time + TIME_TICK_INTERVAL, TIME_TICK_INTERVAL))
-                        plt.yticks(fontsize=8)
-                        
-                        plt.grid(True, which='both', linestyle='--', alpha=0.5)
-                        plt.legend(fontsize=10)
-                        
-                        # Set y-axis limits with some padding
-                        window_y_min = np.min(window_signal) - 0.1 * np.abs(np.min(window_signal))
-                        window_y_max = np.max(window_signal) + 0.1 * np.abs(np.max(window_signal))
-                        plt.ylim(window_y_min, window_y_max)
-                        
-                        plt.tight_layout()
-                        
-                        # Save the plot in electrode-specific folder
-                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                        plot_filename = f"window_{window_idx + 1}_{timestamp}.png"
-                        #plot_filepath = os.path.join(electrode_folder, plot_filename)
-                        #plt.savefig(plot_filepath, dpi=600, bbox_inches='tight')
-                        #print(f"Saved plot for {electrode_name} window {window_idx + 1} to: {plot_filepath}")
-                        
-                        plt.close()
-                    
-                    print(f"\nCompleted processing {electrode_name}")
-                    print(f"Total windows created: {num_windows}")
-                    return True
-                except Exception as e:
-                    print(f"Error processing electrode {electrode_name}: {str(e)}")
-                    return False
 
             def perform_fourier_transform(eeg_signal, electrode_name):
                 """
@@ -202,8 +118,17 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 plot_filename = f"ft_{electrode_name.replace(' ', '_')}_{timestamp}.png"
                 plot_filepath = os.path.join(electrode_ft_folder, plot_filename)
-                plt.savefig(plot_filepath, dpi=600, bbox_inches='tight')
+                try:
+                    plt.savefig(plot_filepath, dpi=300, bbox_inches='tight')
+                except Exception as e:
+                    print(f"Error saving FT plot: {str(e)}")
+                    try:
+                        plt.savefig(plot_filepath, dpi=150, bbox_inches='tight')
+                        print(f"Saved FT plot with reduced DPI (150)")
+                    except Exception as e2:
+                        print(f"Failed to save FT plot even with reduced DPI: {str(e2)}")
                 plt.close()
+                plt.clf()  # Clear the figure to free memory
                 
                 return xf, magnitude
 
@@ -223,28 +148,17 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                 # Remove NaN values
                 eeg_signal = eeg_signal[~np.isnan(eeg_signal)]
                 
-                # Downsample the signal to reduce computation time
-                # Keep every 4th sample (reducing sampling rate to 256 Hz)
-                downsampling_factor = 4
-                eeg_signal = eeg_signal[::downsampling_factor]
-                
-                # Define scales for wavelet transform
-                # Match the noise reduction filter limits (0.5 Hz to 40 Hz)
-                min_freq = 0.5  # Minimum frequency in Hz
-                max_freq = 40   # Maximum frequency in Hz
-                
-                # Calculate the number of scales needed for good frequency resolution
-                num_scales = 200  # Number of scales for frequency resolution
-                
-                # Calculate scales that will give us our desired frequency range
-                # Using a logarithmic scale to get better resolution in lower frequencies
-                scales = np.logspace(np.log10((SAMPLING_FREQ/downsampling_factor * 6) / max_freq),
-                                np.log10((SAMPLING_FREQ/downsampling_factor * 6) / min_freq),
-                                num_scales)
+                # No downsampling
+                fs = SAMPLING_FREQ
+                num_scales = 500  # Increase for better frequency resolution
+                min_freq = 0.5
+                max_freq = 40
+                target_freqs = np.linspace(min_freq, max_freq, num_scales)
+                scales = pywt.central_frequency('morl') * fs / target_freqs
                 
                 # Perform Continuous Wavelet Transform
                 print(f"\nCalculating wavelet transform for {electrode_name}...")
-                coefficients, frequencies = pywt.cwt(eeg_signal, scales, 'morl', sampling_period=downsampling_factor/SAMPLING_FREQ)
+                coefficients, frequencies = pywt.cwt(eeg_signal, scales, 'morl', sampling_period=1/fs)
                 
                 # Print detailed frequency information
                 print(f"\nDetailed frequency information for {electrode_name}:")
@@ -260,15 +174,14 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                 frequencies = frequencies[freq_mask]
                 coefficients = coefficients[freq_mask]
                 
-                # Create time array (adjusted for downsampling)
-                time = np.arange(len(eeg_signal)) * (downsampling_factor/SAMPLING_FREQ)
+                # Create time array (no downsampling)
+                time = np.arange(len(eeg_signal)) * (1/fs)
                 
                 # Create electrode-specific folder for wavelet plots
                 electrode_wavelet_folder = os.path.join(WAVELET_FOLDER, electrode_name.replace(' ', '_'))
                 os.makedirs(electrode_wavelet_folder, exist_ok=True)
                 
                 # Plot and save wavelet results
-                # Create separate plots for different frequency ranges
                 frequency_ranges = [
                     (0.5, 4, 'Delta'),
                     (4, 8, 'Theta'),
@@ -277,7 +190,6 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                     (30, 40, 'Gamma')
                 ]
                 
-                # Print frequency band information
                 print("\nFrequency bands analysis:")
                 for freq_min, freq_max, band_name in frequency_ranges:
                     mask = (frequencies >= freq_min) & (frequencies <= freq_max)
@@ -295,66 +207,59 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                 # Create a combined plot showing all bands
                 plt.figure(figsize=(15, 8))
                 for freq_min, freq_max, band_name in frequency_ranges:
-                    # Find indices for this frequency range
                     mask = (frequencies >= freq_min) & (frequencies <= freq_max)
                     if not any(mask):
                         print(f"Warning: No frequencies found in {band_name} band ({freq_min}-{freq_max} Hz)")
                         continue
-                    
-                    # Get coefficients for this frequency range
                     band_coefficients = np.abs(coefficients[mask])
-                    band_frequencies = frequencies[mask]
-                    
-                    # Calculate average magnitude for this band
                     avg_magnitude = np.mean(band_coefficients, axis=0)
-                    
-                    # Plot this band
                     plt.plot(time, avg_magnitude, label=f'{band_name} Band ({freq_min}-{freq_max} Hz)')
-                
                 plt.title(f'Wavelet Transform - {electrode_name} - All Bands')
                 plt.xlabel('Time (s)')
                 plt.ylabel('Average Magnitude')
                 plt.grid(True)
                 plt.legend()
-                
-                # Save the combined plot
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 plot_filename = f"wavelet_{electrode_name.replace(' ', '_')}_all_bands_{timestamp}.png"
                 plot_filepath = os.path.join(electrode_wavelet_folder, plot_filename)
-                plt.savefig(plot_filepath, dpi=600, bbox_inches='tight')
+                try:
+                    plt.savefig(plot_filepath, dpi=300, bbox_inches='tight')
+                except Exception as e:
+                    print(f"Error saving wavelet plot: {str(e)}")
+                    try:
+                        plt.savefig(plot_filepath, dpi=150, bbox_inches='tight')
+                        print(f"Saved wavelet plot with reduced DPI (150)")
+                    except Exception as e2:
+                        print(f"Failed to save wavelet plot even with reduced DPI: {str(e2)}")
                 plt.close()
-                
-                # Create individual plots for each band
+                plt.clf()
                 for freq_min, freq_max, band_name in frequency_ranges:
-                    # Find indices for this frequency range
                     mask = (frequencies >= freq_min) & (frequencies <= freq_max)
                     if not any(mask):
                         continue
-                    
-                    # Get coefficients for this frequency range
                     band_coefficients = np.abs(coefficients[mask])
-                    band_frequencies = frequencies[mask]
-                    
-                    # Calculate average magnitude for this band
                     avg_magnitude = np.mean(band_coefficients, axis=0)
-                    
-                    # Create plot
                     plt.figure(figsize=(12, 6))
                     plt.plot(time, avg_magnitude, label=f'{band_name} Band ({freq_min}-{freq_max} Hz)')
-                    
                     plt.title(f'Wavelet Transform - {electrode_name} - {band_name} Band')
                     plt.xlabel('Time (s)')
                     plt.ylabel('Average Magnitude')
                     plt.grid(True)
                     plt.legend()
-                    
-                    # Save the plot
-                    '''timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                     plot_filename = f"wavelet_{electrode_name.replace(' ', '_')}_{band_name}_{timestamp}.png"
                     plot_filepath = os.path.join(electrode_wavelet_folder, plot_filename)
-                    plt.savefig(plot_filepath, dpi=600, bbox_inches='tight')
-                    plt.close()'''
-                
+                    try:
+                        plt.savefig(plot_filepath, dpi=300, bbox_inches='tight')
+                    except Exception as e:
+                        print(f"Error saving {band_name} band plot: {str(e)}")
+                        try:
+                            plt.savefig(plot_filepath, dpi=150, bbox_inches='tight')
+                            print(f"Saved {band_name} band plot with reduced DPI (150)")
+                        except Exception as e2:
+                            print(f"Failed to save {band_name} band plot even with reduced DPI: {str(e2)}")
+                    plt.close()
+                    plt.clf()
                 return time, frequencies, np.abs(coefficients)
 
             # Get list of all sheets in the Excel file
@@ -494,23 +399,12 @@ def bcitransform(MOVEMENTS_FOLDER, OUTPUT_BASE_FOLDER):
                 print(f"Wavelet Transform results saved to: {wavelet_excel_path}")
             else:
                 print("No Wavelet Transform results to save.")
-
-            # Now process time domain plots
-            '''print("\nProcessing time domain plots...")
-            for electrode in eeg_df.columns:
-                if electrode != 'EKG-REF':  # Skip the EKG reference channel
-                    print(f"Processing time domain plots for electrode: {electrode}")
-                    eeg_signal = eeg_df[electrode].values
-                    process_electrode(eeg_signal, electrode)
             
-            print("\nAnalysis complete. All plots and transform results have been saved.")
+            print("\nAnalysis complete. All transform results have been saved.")
             print(f"Results are saved in: {PARENT_FOLDER}")
-            print(f"- Time domain plots are in: {PLOTS_FOLDER}")
             print(f"- Frequency domain plots and results are in: {FT_FOLDER}")
-            print(f"- Time-frequency domain plots are in: {WAVELET_FOLDER}")'''
+            print(f"- Time-frequency domain plots are in: {WAVELET_FOLDER}")
             
         except Exception as e:
             print(f"Error in processing: {str(e)}")
             continue
-
-
